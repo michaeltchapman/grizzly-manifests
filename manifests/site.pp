@@ -1,54 +1,50 @@
 $libvirt_type = 'qemu'
-$max_connect_errors = '10'
-
 # This document serves as an example of how to deploy
 # basic multi-node openstack environments.
 # In this scenario Quantum is using OVS with GRE Tunnels
 # Swift is not included.
 
-$ucsm_port = '443'
-
 ########### Proxy Configuration ##########
 # If you use an HTTP/HTTPS proxy, uncomment this setting and specify the correct proxy URL.
 # If you do not use an HTTP/HTTPS proxy, leave this setting commented out.
-#$proxy     = "http://192.168.1:3128"
+#$proxy			= "http://proxy-server:port-number"
 
 # If you are behind a proxy you may choose not to use our ftp distribution, and
 # instead try our http distribution location. Note the http location is not
 # a permanent location and may change at any time.
 $location     = "http://openstack-repo.cisco.com/openstack/cisco"
 # Alternate, uncomment this one, and comment out the one above
-#$location    = "http://128.107.252.163/openstack/cisco"
+#$location		= "http://128.107.252.163/openstack/cisco"
 ########### Build Node (Cobbler, Puppet Master, NTP) ######
 # Change the following to the host name you have given your build node
-$build_node_name        = "coe-build"
+$build_node_name        = "build-server"
 
 ########### NTP Configuration ############
 # Change this to the location of a time server in your organization accessible to the build server
 # The build server will synchronize with this time server, and will in turn function as the time
 # server for your OpenStack nodes
-$company_ntp_server = "time-server.domain.name"
+$company_ntp_server	= "time-server.domain.name"
 
 ########### Build Node Cobbler Variables ############
 # Change these 5 parameters to define the IP address and other network settings of your build node
 # The cobbler node *must* have this IP configured and it *must* be on the same network as
 # the hosts to install
-$cobbler_node_ip  = '192.168.242.100'
-$node_subnet    = '192.168.242.0'
-$node_netmask     = '255.255.255.0'
+$cobbler_node_ip 	= '192.168.242.100'
+$node_subnet 		= '192.168.242.0'
+$node_netmask 		= '255.255.255.0'
 # This gateway is optional - if there's a gateway providing a default route, put it here
 # If not, comment it out
-$node_gateway     = '192.168.242.1'
+$node_gateway 		= '192.168.242.1'
 # This domain name will be the name your build and compute nodes use for the local DNS
 # It doesn't have to be the name of your corporate DNS - a local DNS server on the build
 # node will serve addresses in this domain - but if it is, you can also add entries for
 # the nodes in your corporate DNS environment they will be usable *if* the above addresses 
 # are routeable from elsewhere in your network.
-$domain_name    = 'domain.name'
+$domain_name 		= 'domain.name'
 # This setting likely does not need to be changed
 # To speed installation of your OpenStack nodes, it configures your build node to function
 # as a caching proxy storing the Ubuntu install files used to deploy the OpenStack nodes
-$cobbler_proxy    = "http://${cobbler_node_ip}:3142/"
+$cobbler_proxy 		= "http://${cobbler_node_ip}:3142/"
 
 ####### Preseed File Configuration #######
 # This will build a preseed file called 'cisco-preseed' in /etc/cobbler/preseeds/
@@ -60,9 +56,15 @@ $cobbler_proxy    = "http://${cobbler_node_ip}:3142/"
 # 3) autostart_puppet -- whether the puppet agent will auto start
 # Default user is: localadmin 
 # Default MD5 crypted password is "ubuntu": $6$UfgWxrIv$k4KfzAEMqMg.fppmSOTd0usI4j6gfjs0962.JXsoJRWa5wMz8yQk4SfInn4.WZ3L/MCt5u.62tHDGB36EhiKF1
-$admin_user     = 'localadmin'
-$password_crypted   = '$6$UfgWxrIv$k4KfzAEMqMg.fppmSOTd0usI4j6gfjs0962.JXsoJRWa5wMz8yQk4SfInn4.WZ3L/MCt5u.62tHDGB36EhiKF1'
+$admin_user 		= 'localadmin'
+$password_crypted 	= '$6$UfgWxrIv$k4KfzAEMqMg.fppmSOTd0usI4j6gfjs0962.JXsoJRWa5wMz8yQk4SfInn4.WZ3L/MCt5u.62tHDGB36EhiKF1'
 $autostart_puppet       = true
+
+# If the setup uses the UCS Bseries blades, enter the port on which the
+# ucsm accepts requests. By default the UCSM is enabled to accept requests
+# on port 443 (https). If https is disabled and only http is used, set 
+# $ucsm_port = '80'
+$ucsm_port = '443'
 
 ########### OpenStack Variables ############
 # These values define parameters which will be used to deploy and configure OpenStack
@@ -79,7 +81,9 @@ $controller_hostname           = 'control-server'
 $db_allowed_network            = '192.168.242.%'
 # These next two values typically do not need to be changed. They define the network connectivity
 # of the OpenStack controller
+# This is the interface used to connect to Horizon dashboard
 $controller_node_public        = $controller_node_address
+# This is the interface used for external backend communication
 $controller_node_internal      = $controller_node_address
 
 # These next three parameters specify the networking hardware used in each node
@@ -88,12 +92,12 @@ $controller_node_internal      = $controller_node_address
 #
 # Specify which interface in each node is the API Interface
 # This is also known as the Management Interface
-$public_interface         = 'eth1'
+$public_interface        	= 'eth1'
 # Define the interface used for vm networking connectivity when nova-network is being used.
 # Quantum does not require this value, so using eth0 will typically be fine. 
-$private_interface    = 'eth1'
+$private_interface		= 'eth1'
 # Specify the interface used for external connectivity such as floating IPs (only in network/controller node)
-$external_interface   = 'eth2'
+$external_interface	 	= 'eth2'
 
 # Select the drive on which Ubuntu and OpenStack will be installed in each node. Current assumption is
 # that all nodes will be installed on the same device name
@@ -106,7 +110,7 @@ $admin_email             = 'root@localhost'
 $admin_password          = 'Cisco123'
 $keystone_db_password    = 'keystone_db_pass'
 $keystone_admin_token    = 'keystone_admin_token'
-$nova_user     = 'nova'
+$nova_user		 = 'nova'
 $nova_db_password        = 'nova_pass'
 $nova_user_password      = 'nova_pass'
 $glance_db_password      = 'glance_pass'
@@ -116,12 +120,7 @@ $glance_on_swift         = false
 $rabbit_password         = 'openstack_rabbit_password'
 $rabbit_user             = 'openstack_rabbit_user'
 # Nova DB connection
-$sql_connection    = "mysql://${nova_user}:${nova_db_password}@${controller_node_address}/nova"
-
-
-# This value can be set to true to increase debug logging when trouble-shooting services
-# It should not generally be set to true as it can impact service operation
-$verbose                 = false
+$sql_connection 	 = "mysql://${nova_user}:${nova_db_password}@${controller_node_address}/nova"
 
 #### end shared variables #################
 
@@ -137,7 +136,7 @@ node /build-node/ inherits master-node {
 # OpenStack controller, and change the "mac" to the MAC address of the boot interface of your
 # OpenStack controller. Change the "ip" to the IP address of your OpenStack controller
 
-  cobbler_node { "control-server": node_type => "control", mac => "00:11:22:33:44:55", ip => "192.168.242.10", power_address  => "192.168.242.110" }
+  cobbler_node { "control-server": node_type => "control", mac => "00:11:22:33:44:55", ip => "192.168.242.10", power_address  => "192.168.242.110", power_user => "admin", power_password => "password", power_type => "ipmitool" }
 
 # This block defines the first compute server. Replace "compute_server01" with the host name
 # of your first OpenStack compute node, and change the "mac" to the MAC address of the boot
@@ -145,10 +144,10 @@ node /build-node/ inherits master-node {
 # OpenStack compute node
 
 # Begin compute node
-  cobbler_node { "compute-server01": node_type => "compute", mac => "00:11:22:33:44:66", ip => "192.168.242.21", power_address  => "192.168.242.121" }
+  cobbler_node { "compute-server01": node_type => "compute", mac => "11:22:33:44:55:66", ip => "192.168.242.21", power_address  => "192.168.242.121" }
 # Example with UCS blade power_address with a sub-group (in UCSM), and a ServiceProfile for power_id
 # you will need to change power type to 'USC' in the define macro above 
-#  cobbler_node { "compute-server01": node_type => "compute", mac => "11:22:33:44:55:66:77", ip => "192.168.242.21", power_address  => "192.168.242.121:org-cisco", power_id => "OpenStack-1" }
+#  cobbler_node { "compute-server01": node_type => "compute", mac => "11:22:33:44:66:77", ip => "192.168.242.21", power_address  => "192.168.242.121:org-cisco", power_id => "OpenStack-1" }
 # End compute node
 
 ### Repeat as needed ###
@@ -164,13 +163,13 @@ node /build-node/ inherits master-node {
 # These lines specify the host names in your OpenStack cluster and what the function of each host is
 
 # Change build_server to the host name of your build node
-node coe-build inherits build-node { }
+node build-server inherits build-node { }
 
 # Change control_server to the host name of your control node
-node /control-server/ inherits os_base { class { control: crosstalk_ip => '192.168.242.10'} }
+node /control-server/ inherits os_base { class { control: internal_ip => '192.168.242.10'} }
 
 # Change compute_server01 to the host name of your first compute node
-node /compute-server\d+/ inherits os_base { class { 'compute' : internal_ip => '192.168.242.21', crosstalk_ip => '192.168.242.21'} }
+node /compute-server\d+/ inherits os_base { class { compute: internal_ip => '192.168.242.21'} }
 
 ### Repeat as needed ###
 # Copy the compute_server01 line above and paste a copy here for each additional OpenStack node in
@@ -189,9 +188,9 @@ node /compute-server\d+/ inherits os_base { class { 'compute' : internal_ip => '
 # In the default deployment, the build node functions as the DNS and static DHCP server for
 # the OpenStack nodes. These settings can be used if alternate configurations are needed
 $node_dns       = "${cobbler_node_ip}"
-$ip     = "${cobbler_node_ip}"
-$dns_service  = "dnsmasq"
-$dhcp_service   = "dnsmasq"
+$ip 		= "${cobbler_node_ip}"
+$dns_service 	= "dnsmasq"
+$dhcp_service 	= "dnsmasq"
 
 ### Puppet Parameters ###
 # These settings load other puppet components. They should not be changed
