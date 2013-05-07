@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# Four networks: 
+# Four networks:
 # 0 - VM host NAT
 # 1 - COE build/deploy
 # 2 - COE openstack internal
@@ -31,8 +31,8 @@ Vagrant::Config.run do |config|
   config.vm.define :build do |build_config|
     build_config.vm.box = "precise64"
     build_config.vm.box_url = 'http://files.vagrantup.com/precise64.box'
-    build_config.vm.customize ["modifyvm", :id, "--name", 'coe-build']
-    build_config.vm.host_name = 'coe-build'
+    build_config.vm.customize ["modifyvm", :id, "--name", 'build-server']
+    build_config.vm.host_name = 'build-server'
     build_config.vm.network :hostonly, "192.168.242.100"
     build_config.vm.network :hostonly, "10.2.3.100"
     build_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
@@ -75,11 +75,11 @@ Vagrant::Config.run do |config|
     control_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     control_config.vm.network :hostonly, "10.3.3.10"
     control_config.vm.provision :shell do |shell|
-      shell.inline = 'echo "192.168.242.100 coe-build coe-build.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
+      shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
     end
     node_name = "control-server-#{Time.now.strftime('%Y%m%d%m%s')}"
     control_config.vm.provision(:puppet_server) do |puppet|
-      puppet.puppet_server = 'coe-build.domain.name'
+      puppet.puppet_server = 'build-server.domain.name'
       puppet.options       = ['-t', '--pluginsync', '--trace', "--certname #{node_name}"]
     end
     # TODO install from puppet
@@ -106,11 +106,11 @@ Vagrant::Config.run do |config|
     compute_config.vm.network :hostonly, "10.2.3.21"
     compute_config.vm.network :hostonly, "10.3.3.21"
     compute_config.vm.provision :shell do |shell|
-      shell.inline = 'echo "192.168.242.100 coe-build coe-build.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
+      shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
     end
     node_name = "compute-server02-#{Time.now.strftime('%Y%m%d%m%s')}"
     compute_config.vm.provision(:puppet_server) do |puppet|
-      puppet.puppet_server = 'coe-build.domain.name'
+      puppet.puppet_server = 'build-server.domain.name'
       puppet.options       = ['-t', '--pluginsync', '--trace', "--certname #{node_name}"]
     end
     # TODO install from puppet
