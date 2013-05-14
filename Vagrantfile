@@ -38,7 +38,7 @@ Vagrant::Config.run do |config|
     build_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     build_config.vm.network :hostonly, "10.3.3.100"
     build_config.vm.provision :shell do |shell|
-      shell.inline = "cp /vagrant/dhclient.conf /etc/dhcp;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update; dhclient -r eth0 && dhclient eth0; apt-get install -y git vim puppet curl;cp /vagrant/templates/* /etc/puppet/templates/"
+      shell.inline = "cp /vagrant/dhclient.conf /etc/dhcp;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update; dhclient -r eth0 && dhclient eth0; apt-get install -y git vim puppet curl;"
     end
     # now run puppet to install the build server
     build_config.vm.provision(:puppet, :pp_path => "/etc/puppet") do |puppet|
@@ -48,7 +48,7 @@ Vagrant::Config.run do |config|
       puppet.options        = ['--verbose', '--trace', '--debug']
     end
     build_config.vm.provision :shell do |shell|
-      shell.inline = 'if [ ! -h /etc/puppet/modules ]; then rmdir /etc/puppet/modules;ln -s /etc/puppet/modules-0 /etc/puppet/modules; fi'
+      shell.inline = 'if [ ! -h /etc/puppet/modules ]; then rmdir /etc/puppet/modules;ln -s /etc/puppet/modules-0 /etc/puppet/modules; fi;puppet plugin download --server build-server.domain.name;service apache2 restart'
     end
   end
 

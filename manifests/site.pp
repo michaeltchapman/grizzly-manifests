@@ -1,4 +1,5 @@
 $libvirt_type = 'qemu'
+$package_repo = 'cloud_archive'
 # This document serves as an example of how to deploy
 # basic multi-node openstack environments.
 # In this scenario Quantum is using OVS with GRE Tunnels
@@ -92,9 +93,9 @@ $controller_node_internal      = $controller_node_address
 #
 # Specify which interface in each node is the API Interface
 # This is also known as the Management Interface
-$public_interface        	= 'eth1'
+$public_interface              = 'eth1'
 # Define the interface used for vm networking connectivity when nova-network is being used.
-# Quantum does not require this value, so using eth0 will typically be fine. 
+# Quantum does not require this value, so using eth0 will typically be fine.
 $private_interface		= 'eth1'
 # Specify the interface used for external connectivity such as floating IPs (only in network/controller node)
 $external_interface	 	= 'eth2'

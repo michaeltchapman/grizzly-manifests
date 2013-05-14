@@ -22,13 +22,14 @@ node base {
   }
 
   # Load apt prerequisites.  This is only valid on Ubuntu systmes
+  if($::package_repo == 'cisco_repo') {
 
-  apt::source { "cisco-openstack-mirror_grizzly":
-    location => $::location,
-    release => "grizzly-proposed",
-    repos => "main",
-    key => "E8CC67053ED3B199",
-    key_content => '-----BEGIN PGP PUBLIC KEY BLOCK-----
+    apt::source { "cisco-openstack-mirror_grizzly":
+      location => $::location,
+      release => "grizzly-proposed",
+      repos => "main",
+      key => "E8CC67053ED3B199",
+      key_content => '-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
 mQENBE/oXVkBCACcjAcV7lRGskECEHovgZ6a2robpBroQBW+tJds7B+qn/DslOAN
@@ -59,12 +60,22 @@ xKyLYs5m34d4a0it6wsMem3YCefSYBjyLGSd/kCI/CgOdGN1ZY1HSdLmmjiDkQPQ
 UcXHbA==
 =v6jg
 -----END PGP PUBLIC KEY BLOCK-----',
-	  proxy => $::proxy,
-  }
+      proxy => $::proxy,
+    }
 
-  apt::pin { "cisco":
-    priority => '990',
-    originator => 'Cisco'
+    apt::pin { "cisco":
+      priority => '990',
+      originator => 'Cisco'
+    }
+  } elsif($::package_repo == 'cloud_archive') {
+    apt::source { 'openstack_cloud_archive':
+      location          => "http://ubuntu-cloud.archive.canonical.com/ubuntu",
+      release           => "precise-updates/grizzly",
+      repos             => "main",
+      required_packages => 'ubuntu-cloud-keyring',
+    }
+  } else {
+    fail("Unsupported package repo ${::package_repo}")
   }
 
   class { pip: }
@@ -132,14 +143,10 @@ class control($internal_ip) {
 
   class { 'openstack::controller':
     public_address          => $controller_node_public,
-    public_interface        => $public_interface,
-    private_interface       => $private_interface,
+    # network
     internal_address        => $controller_node_internal,
-    floating_range          => $floating_ip_range,
-    fixed_range             => $fixed_network_range,
     # by default it does not enable multi-host mode
     multi_host              => $multi_host,
-    network_manager         => 'nova.network.quantum.manager.QuantumManager',
     verbose                 => $verbose,
     auto_assign_floating_ip => $auto_assign_floating_ip,
     mysql_root_password     => $mysql_root_password,
@@ -149,13 +156,19 @@ class control($internal_ip) {
     keystone_admin_token    => $keystone_admin_token,
     glance_db_password      => $glance_db_password,
     glance_user_password    => $glance_user_password,
+
+    # TODO not sure why this is required
     glance_sql_connection   => $glance_sql_connection,
+
+    # TODO this needs to be added
     glance_on_swift         => $glance_on_swift,
+
     nova_db_password        => $nova_db_password,
     nova_user_password      => $nova_user_password,
     rabbit_password         => $rabbit_password,
     rabbit_user             => $rabbit_user,
-    export_resources        => false,
+    # TODO deprecated
+    #export_resources        => false,
 
     ######### quantum variables #############
     quantum_enabled			=> true,
@@ -164,9 +177,6 @@ class control($internal_ip) {
     quantum_admin_username       	=> 'quantum',
     quantum_admin_password       	=> 'quantum',
     quantum_admin_auth_url       	=> "http://${controller_node_address}:35357/v2.0",
-    quantum_ip_overlap              => false,
-    libvirt_vif_driver      	=> 'nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver',
-    host         		 	=> 'controller',
     quantum_sql_connection       	=> "mysql://quantum:quantum@${controller_node_address}/quantum",
     quantum_auth_host            	=> $controller_node_address,
     quantum_auth_port            	=> "35357",
@@ -200,11 +210,9 @@ class control($internal_ip) {
     quantum_public_address       	=> $controller_node_address,
     quantum_admin_address        	=> $controller_node_address,
     quantum_internal_address     	=> $controller_node_address,
-    quantum_port                 	=> '9696',
     quantum_region               	=> 'RegionOne',
     l3_interface_driver          	=> "quantum.agent.linux.interface.OVSInterfaceDriver",
     l3_use_namespaces            	=> "True",
-    l3_metadata_ip               	=> $controller_node_address,
     l3_external_network_bridge   	=> "br-ex",
     l3_root_helper               	=> "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf",
     #quantum dhcp
@@ -283,12 +291,8 @@ class control($internal_ip) {
 class compute($internal_ip) {
 
   class { 'openstack::compute':
-    public_interface   => $public_interface,
-    private_interface  => $private_interface,
     internal_address   => $internal_ip,
-    libvirt_type       => 'kvm',
-    fixed_range        => $fixed_network_range,
-    network_manager    => 'nova.network.quantum.manager.QuantumManager',
+    libvirt_type       => $libvirt_type,
     multi_host         => $multi_host,
     sql_connection     => $sql_connection,
     nova_user_password => $nova_user_password,
@@ -308,10 +312,6 @@ class compute($internal_ip) {
     quantum_admin_username       	=> 'quantum',
     quantum_admin_password       	=> 'quantum',
     quantum_admin_auth_url       	=> "http://${controller_node_address}:35357/v2.0",
-    quantum_ip_overlap              => false,
-    libvirt_vif_driver      	=> 'nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver',
-    libvirt_use_virtio_for_bridges  => 'True',
-    host        	 		=> 'compute',
     #quantum general
     quantum_log_verbose          	=> "False",
     quantum_log_debug            	=> false,
