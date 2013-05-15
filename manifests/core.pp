@@ -157,9 +157,6 @@ class control($internal_ip) {
     glance_db_password      => $glance_db_password,
     glance_user_password    => $glance_user_password,
 
-    # TODO not sure why this is required
-    glance_sql_connection   => $glance_sql_connection,
-
     # TODO this needs to be added
     glance_on_swift         => $glance_on_swift,
 
@@ -171,55 +168,27 @@ class control($internal_ip) {
     #export_resources        => false,
 
     ######### quantum variables #############
-    quantum_enabled			=> true,
-    quantum_url             	=> "http://${controller_node_address}:9696",
-    quantum_admin_tenant_name    	=> 'services',
-    quantum_admin_username       	=> 'quantum',
-    quantum_admin_password       	=> 'quantum',
-    quantum_admin_auth_url       	=> "http://${controller_node_address}:35357/v2.0",
-    quantum_sql_connection       	=> "mysql://quantum:quantum@${controller_node_address}/quantum",
-    quantum_auth_host            	=> $controller_node_address,
-    quantum_auth_port            	=> "35357",
-    quantum_rabbit_host          	=> $controller_node_address,
-    quantum_rabbit_port          	=> "5672",
-    quantum_rabbit_user          	=> $rabbit_user,
-    quantum_rabbit_password      	=> $rabbit_password,
-    quantum_rabbit_virtual_host  	=> "/",
-    quantum_control_exchange     	=> "quantum",
-    quantum_core_plugin          	=> "quantum.plugins.openvswitch.ovs_quantum_plugin.OVSQuantumPluginV2",
-    ovs_bridge_uplinks      	=> ["br-ex:${external_interface}"],
-    ovs_bridge_mappings          	=> ['default:br-ex'],
-    ovs_tenant_network_type  	=> "gre",
-    ovs_network_vlan_ranges  	=> "default:1000:2000",
-    ovs_integration_bridge   	=> "br-int",
-    ovs_enable_tunneling    	=> "True",
-    ovs_tunnel_bridge         	=> "br-tun",
-    ovs_tunnel_id_ranges     	=> "1:1000",
-    ovs_local_ip             	=> $internal_ip,
-    ovs_server               	=> false,
-    ovs_root_helper          	=> "sudo quantum-rootwrap /etc/quantum/rootwrap.conf",
-    ovs_sql_connection       	=> "mysql://quantum:quantum@${controller_node_address}/quantum",
-    quantum_db_password      	=> "quantum",
-    quantum_db_name        	 	=> 'quantum',
-    quantum_db_user          	=> 'quantum',
-    quantum_db_host          	=> $controller_node_address,
-    quantum_db_allowed_hosts 	=> ['localhost', $db_allowed_network],
-    quantum_db_charset       	=> 'latin1',
-    quantum_db_cluster_id    	=> 'localzone',
-    quantum_email              	=> "quantum@${controller_node_address}",
-    quantum_public_address       	=> $controller_node_address,
-    quantum_admin_address        	=> $controller_node_address,
-    quantum_internal_address     	=> $controller_node_address,
-    quantum_region               	=> 'RegionOne',
-    l3_interface_driver          	=> "quantum.agent.linux.interface.OVSInterfaceDriver",
-    l3_use_namespaces            	=> "True",
-    l3_external_network_bridge   	=> "br-ex",
-    l3_root_helper               	=> "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf",
-    #quantum dhcp
-    dhcp_state_path         	=> "/var/lib/quantum",
-    dhcp_interface_driver   	=> "quantum.agent.linux.interface.OVSInterfaceDriver",
-    dhcp_driver        	 	=> "quantum.agent.linux.dhcp.Dnsmasq",
-    dhcp_use_namespaces     	=> "True",
+    # need to set from a variable
+    # database
+    quantum_db_host     => $controller_node_address,
+    quantum_db_password => "quantum",
+    quantum_db_name     => 'quantum',
+    quantum_db_user     => 'quantum',
+    # enable quantum services
+    enable_dhcp_agent     => $enable_dhcp_agent,
+    enable_l3_agent       => $enable_l3_agent,
+    enable_metadata_agent => $enable_metadata_agent,
+    enabled               => $enabled,
+    enable_server         => $enable_quantum_server,
+    # ovs config
+    ovs_local_ip        => '127.0.0.1',
+    bridge_interface    => $external_interface,
+    enable_ovs_agent    => true,
+    # Quantum L3 Agent
+    #l3_auth_url           => $quantum_l3_auth_url,
+    # Keystone
+    user_password => 'quantum',
+    keystone_host         => $keystone_host,
   }
 
 # Needed to ensure a proper "second" interface is online
