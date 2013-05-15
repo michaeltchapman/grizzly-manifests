@@ -74,9 +74,9 @@ Vagrant::Config.run do |config|
     control_config.vm.network :hostonly, "10.2.3.10"
     control_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     control_config.vm.network :hostonly, "10.3.3.10"
-    control_config.vm.provision :shell do |shell|
-      shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
-    end
+    #control_config.vm.provision :shell do |shell|
+    #  shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
+    #end
     node_name = "control-server-#{Time.now.strftime('%Y%m%d%m%s')}"
     control_config.vm.provision(:puppet_server) do |puppet|
       puppet.puppet_server = 'build-server.domain.name'

@@ -170,7 +170,7 @@ class control($internal_ip) {
     ######### quantum variables #############
     # need to set from a variable
     # database
-    quantum_db_host     => $controller_node_address,
+    db_host     => $controller_node_address,
     quantum_db_password => "quantum",
     quantum_db_name     => 'quantum',
     quantum_db_user     => 'quantum',
@@ -178,8 +178,6 @@ class control($internal_ip) {
     enable_dhcp_agent     => $enable_dhcp_agent,
     enable_l3_agent       => $enable_l3_agent,
     enable_metadata_agent => $enable_metadata_agent,
-    enabled               => $enabled,
-    enable_server         => $enable_quantum_server,
     # ovs config
     ovs_local_ip        => '127.0.0.1',
     bridge_interface    => $external_interface,
@@ -187,8 +185,10 @@ class control($internal_ip) {
     # Quantum L3 Agent
     #l3_auth_url           => $quantum_l3_auth_url,
     # Keystone
-    user_password => 'quantum',
+    quantum_user_password => 'quantum',
     keystone_host         => $keystone_host,
+    # horizon
+    secret_key => 'super_secret',
   }
 
 # Needed to ensure a proper "second" interface is online
