@@ -158,7 +158,7 @@ class control($internal_ip) {
     glance_user_password    => $glance_user_password,
 
     # TODO this needs to be added
-    glance_on_swift         => $glance_on_swift,
+    glance_backend          => $glance_backend,
 
     nova_db_password        => $nova_db_password,
     nova_user_password      => $nova_user_password,
