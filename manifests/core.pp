@@ -171,7 +171,7 @@ class control($internal_ip) {
     # need to set from a variable
     # database
     db_host     => $controller_node_address,
-    quantum_db_password => "quantum",
+    quantum_db_password => $quantum_db_password,
     quantum_db_name     => 'quantum',
     quantum_db_user     => 'quantum',
     # enable quantum services
@@ -185,66 +185,70 @@ class control($internal_ip) {
     # Quantum L3 Agent
     #l3_auth_url           => $quantum_l3_auth_url,
     # Keystone
-    quantum_user_password => 'quantum',
-    keystone_host         => $keystone_host,
+    quantum_user_password => $quantum_user_password,
     # horizon
     secret_key => 'super_secret',
+    # cinder
+    cinder_user_password => $cinder_user_password,
+    cinder_db_password   => $cinder_db_password,
   }
 
 # Needed to ensure a proper "second" interface is online
 # This same module may be useable for forcing bonded interfaces as well
 
-  if $::node_gateway {
-    network_config { $::private_interface:
+  if $::configure_network_interfaces {
+    if $::node_gateway {
+      network_config { $::private_interface:
+        ensure => 'present',
+        hotplug => false,
+        family => 'inet',
+        ipaddress => $::controller_node_address,
+        method => 'static',
+        netmask => $::node_netmask,
+        options => {
+          "dns-search" => $::domain_name,
+          "dns-nameservers" => $::cobbler_node_ip,
+          "gateway" => $::node_gateway
+        },
+        onboot => 'true',
+        notify => Service['networking'],
+      }
+    } else {
+      network_config { $::private_interface:
+        ensure => 'present',
+        hotplug => false,
+        family => 'inet',
+        ipaddress => $::controller_node_address,
+        method => 'static',
+        netmask => $::node_netmask,
+        options => {
+          "dns-search" => $::domain_name,
+          "dns-nameservers" => $::cobbler_node_ip,
+        },
+        onboot => 'true',
+        notify => Service['networking'],
+      }
+    }
+
+    network_config { 'lo':
       ensure => 'present',
       hotplug => false,
       family => 'inet',
-      ipaddress => $::controller_node_address,
-      method => 'static',
-      netmask => $::node_netmask,
-      options => {
-        "dns-search" => $::domain_name,
-        "dns-nameservers" => $::cobbler_node_ip,
-        "gateway" => $::node_gateway
-      },
+      method => 'loopback',
       onboot => 'true',
       notify => Service['networking'],
     }
-  } else {
-    network_config { $::private_interface:
+
+    network_config { $::external_interface:
       ensure => 'present',
       hotplug => false,
       family => 'inet',
-      ipaddress => $::controller_node_address,
       method => 'static',
-      netmask => $::node_netmask,
-      options => {
-        "dns-search" => $::domain_name,
-        "dns-nameservers" => $::cobbler_node_ip,
-      },
+      ipaddress => '0.0.0.0',
+      netmask => '255.255.255.255',
       onboot => 'true',
       notify => Service['networking'],
     }
-  }
-
-  network_config { 'lo':
-    ensure => 'present',
-    hotplug => false,
-    family => 'inet',
-    method => 'loopback',
-    onboot => 'true',
-    notify => Service['networking'],
-  }
-
-  network_config { $::external_interface:
-    ensure => 'present',
-    hotplug => false,
-    family => 'inet',
-    method => 'static',
-    ipaddress => '0.0.0.0',
-    netmask => '255.255.255.255',
-    onboot => 'true',
-    notify => Service['networking'],
   }
 
   service {'networking':
@@ -260,57 +264,43 @@ class control($internal_ip) {
 class compute($internal_ip) {
 
   class { 'openstack::compute':
+    # keystone
+    keystone_host      => $controller_node_internal,
+    quantum_host       => $controller_node_internal,
     internal_address   => $internal_ip,
     libvirt_type       => $libvirt_type,
     multi_host         => $multi_host,
-    sql_connection     => $sql_connection,
-    nova_user_password => $nova_user_password,
+    # rabbit
     rabbit_host        => $controller_node_internal,
     rabbit_password    => $rabbit_password,
     rabbit_user        => $rabbit_user,
+    # nova
+    nova_user_password => $nova_user_password,
+    nova_db_password   => $nova_db_password,
     glance_api_servers => "${controller_node_internal}:9292",
     vncproxy_host      => $controller_node_public,
-    vnc_enabled        => 'true',
-    verbose            => $verbose,
-    manage_volumes     => true,
-    nova_volume        => 'nova-volumes',
+    vnc_enabled        => true,
+    # cinder parameters
+    cinder_db_password    => $cinder_db_password,
+    manage_volumes        => true,
+    volume_group          => 'nova-volumes',
+    setup_test_volume     => true,
     # quantum config
-    quantum_enabled			=> false,
-    quantum_url             	=> "http://${controller_node_address}:9696",
-    quantum_admin_tenant_name    	=> 'services',
-    quantum_admin_username       	=> 'quantum',
-    quantum_admin_password       	=> 'quantum',
-    quantum_admin_auth_url       	=> "http://${controller_node_address}:35357/v2.0",
-    #quantum general
-    quantum_log_verbose          	=> "False",
-    quantum_log_debug            	=> false,
-    quantum_bind_host            	=> "0.0.0.0",
-    quantum_bind_port            	=> "9696",
-    quantum_sql_connection       	=> "mysql://quantum:quantum@${controller_node_address}/quantum",
-    quantum_auth_host            	=> $controller_node_address,
-    quantum_auth_port            	=> "35357",
-    quantum_rabbit_host          	=> $controller_node_address,
-    quantum_rabbit_port          	=> "5672",
-    quantum_rabbit_user          	=> $rabbit_user,
-    quantum_rabbit_password      	=> $rabbit_password,
-    quantum_rabbit_virtual_host  	=> "/",
-    quantum_control_exchange     	=> "quantum",
-    quantum_core_plugin            	=> "quantum.plugins.openvswitch.ovs_quantum_plugin.OVSQuantumPluginV2",
-    quantum_mac_generation_retries 	=> 16,
-    quantum_dhcp_lease_duration    	=> 120,
-    #quantum ovs
-    ovs_bridge_uplinks      	=> ["br-ex:${external_interface}"],
-    ovs_bridge_mappings      	=> ['default:br-ex'],
-    ovs_tenant_network_type  	=> "gre",
-    ovs_network_vlan_ranges  	=> "default:1000:2000",
-    ovs_integration_bridge   	=> "br-int",
-    ovs_enable_tunneling    	=> "True",
-    ovs_tunnel_bridge       	=> "br-tun",
-    ovs_tunnel_id_ranges     	=> "1:1000",
-    ovs_local_ip             	=> $internal_ip,
-    ovs_server               	=> false,
-    ovs_root_helper          	=> "sudo quantum-rootwrap /etc/quantum/rootwrap.conf",
-    ovs_sql_connection       	=> "mysql://quantum:quantum@${controller_node_address}/quantum",
+    quantum			          => true,
+    quantum_user_password => $quantum_user_password,
+    quantum_db_password   => $quantum_db_password,
+    # Quantum OVS
+    bridge_interface      => $external_interface,
+    enable_ovs_agent      => true,
+     # Quantum L3 Agent
+    enable_l3_agent       => false,
+    enable_dhcp_agent     => false,
+    # quantum_l3_auth_url   => ,
+    # General
+    enable_quantum_server => $false,
+    # general
+    enabled               => true,
+    verbose               => $verbose,
   }
 
   class { "naginator::compute_target": }

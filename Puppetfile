@@ -22,7 +22,7 @@ mod 'CiscoSystems/swift', :git => "git://github.com/#{openstack_module_account}/
 # middleware modules
 mod 'CiscoSystems/apache', :git => "git://github.com/CiscoSystems/puppet-apache", :ref => branch_name
 mod 'CiscoSystems/memcached', :git => "git://github.com/CiscoSystems/puppet-memcached", :ref => branch_name
-mod 'CiscoSystems/mysql', :git => "git://github.com/CiscoSystems/puppet-mysql", :ref => branch_name
+mod 'CiscoSystems/mysql', :git => "git://github.com/puppetlabs/puppet-mysql"#, :ref => branch_name
 mod 'CiscoSystems/rabbitmq', :git => "git://github.com/CiscoSystems/puppet-rabbitmq", :ref => branch_name
 
 # linux tools
@@ -50,5 +50,5 @@ mod 'CiscoSystems/boolean', :git => "git://github.com/CiscoSystems/puppet-boolea
 
 # puppet utilities
 mod 'CiscoSystems/concat', :git => "git://github.com/CiscoSystems/puppet-concat", :ref => branch_name
-mod 'CiscoSystems/inifile', :git => "git://github.com/CiscoSystems/puppet-inifile", :ref => branch_name
+mod 'CiscoSystems/inifile', :git => "git://github.com/cprice-puppet/puppet-inifile", :ref => 'origin/master'
 mod 'CiscoSystems/stdlib', :git => "git://github.com/CiscoSystems/puppet-stdlib", :ref => branch_name

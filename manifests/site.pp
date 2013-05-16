@@ -1,5 +1,6 @@
 $libvirt_type = 'qemu'
 $package_repo = 'cloud_archive'
+$configure_network_interfaces=false
 # This document serves as an example of how to deploy
 # basic multi-node openstack environments.
 # In this scenario Quantum is using OVS with GRE Tunnels
@@ -120,6 +121,10 @@ $glance_sql_connection   = "mysql://glance:${glance_db_password}@${controller_no
 $glance_backend          = 'file'
 $rabbit_password         = 'openstack_rabbit_password'
 $rabbit_user             = 'openstack_rabbit_user'
+$cinder_user_password    = 'cinder_user_pass'
+$cinder_db_password      = 'cinder_db_pass'
+$quantum_user_password   = 'quantum_user_pass'
+$quantum_db_password     = 'quantum_db_pass'
 # Nova DB connection
 $sql_connection 	 = "mysql://${nova_user}:${nova_db_password}@${controller_node_address}/nova"
 

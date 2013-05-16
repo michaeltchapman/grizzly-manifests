@@ -68,15 +68,15 @@ Vagrant::Config.run do |config|
     control_config.vm.box_url = 'http://files.vagrantup.com/precise64.box'
     control_config.vm.customize ["modifyvm", :id, "--name", 'control-server']
     control_config.vm.customize ["modifyvm", :id, "--memory", 1024]
-    control_config.vm.host_name = 'control-server'
+    control_config.vm.host_name = 'control-server.domain.name'
     # you cannot boot this at the same time as the control_pxe b/c they have the same ip address
     control_config.vm.network :hostonly, "192.168.242.10"
     control_config.vm.network :hostonly, "10.2.3.10"
     control_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     control_config.vm.network :hostonly, "10.3.3.10"
-    #control_config.vm.provision :shell do |shell|
-    #  shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
-    #end
+    control_config.vm.provision :shell do |shell|
+      shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
+    end
     node_name = "control-server-#{Time.now.strftime('%Y%m%d%m%s')}"
     control_config.vm.provision(:puppet_server) do |puppet|
       puppet.puppet_server = 'build-server.domain.name'
@@ -100,7 +100,7 @@ Vagrant::Config.run do |config|
     compute_config.vm.box = "precise64"
     compute_config.vm.box_url = 'http://files.vagrantup.com/precise64.box'
     compute_config.vm.customize ["modifyvm", :id, "--name", 'compute-server02']
-    compute_config.vm.host_name = 'compute-server02'
+    compute_config.vm.host_name = 'compute-server02.domain.name'
     compute_config.vm.customize ["modifyvm", :id, "--memory", 2512]
     compute_config.vm.network :hostonly, "192.168.242.21"
     compute_config.vm.network :hostonly, "10.2.3.21"
