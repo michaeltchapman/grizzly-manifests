@@ -9,20 +9,29 @@ mod 'CiscoSystems/coe', :git => "git://github.com/CiscoSystems/puppet-coe", :ref
 mod 'CiscoSystems/openstack_admin', :git => "git://github.com/CiscoSystems/puppet-openstack_admin", :ref => branch_name
 
 # the openstack module
-mod 'CiscoSystems/openstack', :git => "git://github.com/CiscoSystems/puppet-openstack", :ref => branch_name
+#mod 'CiscoSystems/openstack', :git => "git://github.com/CiscoSystems/puppet-openstack", :ref => branch_name
+mod 'CiscoSystems/openstack', :git => "git://github.com/bodepd/puppet-openstack", :ref => 'origin/grizzly_working'
 # openstack core modules
 mod 'CiscoSystems/cinder', :git => "git://github.com/#{openstack_module_account}/puppet-cinder", :ref => openstack_module_branch
 mod 'CiscoSystems/glance', :git => "git://github.com/#{openstack_module_account}/puppet-glance", :ref => openstack_module_branch
 mod 'CiscoSystems/keystone', :git => "git://github.com/#{openstack_module_account}/puppet-keystone", :ref => openstack_module_branch
 mod 'CiscoSystems/horizon', :git => "git://github.com/#{openstack_module_account}/puppet-horizon", :ref => openstack_module_branch
-mod 'CiscoSystems/nova', :git => "git://github.com/#{openstack_module_account}/puppet-nova", :ref => openstack_module_branch
+#
+# has one patch outstanding
+#
+#mod 'CiscoSystems/nova', :git => "git://github.com/#{openstack_module_account}/puppet-nova", :ref => openstack_module_branch
+mod 'CiscoSystems/nova', :git => "git://github.com/bodepd/puppet-nova", :ref => 'origin/grizzly_work'
+
 mod 'CiscoSystems/quantum', :git => "git://github.com/#{openstack_module_account}/puppet-quantum", :ref => openstack_module_branch
 mod 'CiscoSystems/swift', :git => "git://github.com/#{openstack_module_account}/puppet-swift", :ref => openstack_module_branch
 
 # middleware modules
 mod 'CiscoSystems/apache', :git => "git://github.com/CiscoSystems/puppet-apache", :ref => branch_name
 mod 'CiscoSystems/memcached', :git => "git://github.com/CiscoSystems/puppet-memcached", :ref => branch_name
-mod 'CiscoSystems/mysql', :git => "git://github.com/puppetlabs/puppet-mysql"#, :ref => branch_name
+#
+# I cannot remember if this is necessary
+#
+mod 'CiscoSystems/mysql', :git => "git://github.com/puppetlabs/puppetlabs-mysql", :ref => 'master'
 mod 'CiscoSystems/rabbitmq', :git => "git://github.com/CiscoSystems/puppet-rabbitmq", :ref => branch_name
 
 # linux tools
@@ -50,5 +59,6 @@ mod 'CiscoSystems/boolean', :git => "git://github.com/CiscoSystems/puppet-boolea
 
 # puppet utilities
 mod 'CiscoSystems/concat', :git => "git://github.com/CiscoSystems/puppet-concat", :ref => branch_name
-mod 'CiscoSystems/inifile', :git => "git://github.com/cprice-puppet/puppet-inifile", :ref => 'origin/master'
+# need the latest changes here
+mod 'CiscoSystems/inifile', :git => "git://github.com/cprice-puppet/puppetlabs-inifile", :ref => 'origin/master'
 mod 'CiscoSystems/stdlib', :git => "git://github.com/CiscoSystems/puppet-stdlib", :ref => branch_name

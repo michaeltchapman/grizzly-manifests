@@ -292,6 +292,7 @@ class compute($internal_ip) {
     # Quantum OVS
     bridge_interface      => $external_interface,
     enable_ovs_agent      => true,
+    ovs_local_ip          => $vm_net_ip,
      # Quantum L3 Agent
     enable_l3_agent       => false,
     enable_dhcp_agent     => false,
