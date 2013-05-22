@@ -295,9 +295,6 @@ class compute($internal_ip) {
      # Quantum L3 Agent
     enable_l3_agent       => false,
     enable_dhcp_agent     => false,
-    # quantum_l3_auth_url   => ,
-    # General
-    enable_quantum_server => $false,
     # general
     enabled               => true,
     verbose               => $verbose,
