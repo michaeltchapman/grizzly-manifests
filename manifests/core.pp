@@ -288,7 +288,6 @@ class compute($internal_ip) {
     # quantum config
     quantum			          => true,
     quantum_user_password => $quantum_user_password,
-    quantum_db_password   => $quantum_db_password,
     # Quantum OVS
     bridge_interface      => $external_interface,
     enable_ovs_agent      => true,
