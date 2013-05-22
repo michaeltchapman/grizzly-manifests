@@ -179,7 +179,7 @@ class control($internal_ip) {
     enable_l3_agent       => $enable_l3_agent,
     enable_metadata_agent => $enable_metadata_agent,
     # ovs config
-    ovs_local_ip        => '127.0.0.1',
+    ovs_local_ip        => $vm_net_ip,
     bridge_interface    => $external_interface,
     enable_ovs_agent    => true,
     # Quantum L3 Agent

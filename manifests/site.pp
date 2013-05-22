@@ -1,3 +1,4 @@
+$vm_net_ip    = $ipaddress_eth3
 $libvirt_type = 'qemu'
 $package_repo = 'cloud_archive'
 $configure_network_interfaces=false
