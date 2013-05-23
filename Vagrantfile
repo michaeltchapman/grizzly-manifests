@@ -23,7 +23,7 @@ Vagrant::Config.run do |config|
     cache_config.vm.customize ['modifyvm', :id, '--name', 'cache']
     cache_config.vm.host_name = 'cache'
     cache_config.vm.provision :shell do |shell|
-      shell.inline = "apt-get update; apt-get install apt-cacher-ng -y; cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;sysctl -w net.ipv4.ip_forward=1;#iptables –A FORWARD –i eth0 –o eth2 –j ACCEPT;iptables –A FORWARD –i eth2 –o eth0 –j ACCEPT;iptables –t nat –A POSTROUTING –o eth0 –j MASQUERADE"
+      shell.inline = "apt-get update; apt-get install apt-cacher-ng -y; cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;sysctl -w net.ipv4.ip_forward=1;"
     end
   end
 
@@ -37,9 +37,19 @@ Vagrant::Config.run do |config|
     build_config.vm.network :hostonly, "10.2.3.100"
     build_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     build_config.vm.network :hostonly, "10.3.3.100"
+
+    build_config.vm.provision :shell do |shell|
+        shell.inline = "cp /vagrant/sources.list /etc/apt"
+    end
+
     build_config.vm.provision :shell do |shell|
       shell.inline = "cp /vagrant/dhclient.conf /etc/dhcp;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update; dhclient -r eth0 && dhclient eth0; apt-get install -y git vim puppet curl;"
     end
+
+    build_config.vm.provision :shell do |shell|
+        shell.inline = "apt-get install -y cobbler; cobbler-ubuntu-import -m http://mirror.optus.net/ubuntu precise-x86_64"
+    end    
+
     # now run puppet to install the build server
     build_config.vm.provision(:puppet, :pp_path => "/etc/puppet") do |puppet|
       puppet.manifests_path = 'manifests'
@@ -67,13 +77,16 @@ Vagrant::Config.run do |config|
     control_config.vm.box = "precise64"
     control_config.vm.box_url = 'http://files.vagrantup.com/precise64.box'
     control_config.vm.customize ["modifyvm", :id, "--name", 'control-server']
-    control_config.vm.customize ["modifyvm", :id, "--memory", 1024]
+    control_config.vm.customize ["modifyvm", :id, "--memory", 1536]
     control_config.vm.host_name = 'control-server.domain.name'
     # you cannot boot this at the same time as the control_pxe b/c they have the same ip address
     control_config.vm.network :hostonly, "192.168.242.10"
     control_config.vm.network :hostonly, "10.2.3.10"
     control_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     control_config.vm.network :hostonly, "10.3.3.10"
+    control_config.vm.provision :shell do |shell|
+        shell.inline = "cp /vagrant/sources.list /etc/apt"
+    end
     control_config.vm.provision :shell do |shell|
       shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
     end
@@ -105,6 +118,9 @@ Vagrant::Config.run do |config|
     compute_config.vm.network :hostonly, "192.168.242.21"
     compute_config.vm.network :hostonly, "10.2.3.21"
     compute_config.vm.network :hostonly, "10.3.3.21"
+    compute_config.vm.provision :shell do |shell|
+        shell.inline = "cp /vagrant/sources.list /etc/apt"
+    end
     compute_config.vm.provision :shell do |shell|
       shell.inline = 'echo "192.168.242.100 build-server build-server.domain.name" >> /etc/hosts;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update;apt-get install ubuntu-cloud-keyring'
     end
