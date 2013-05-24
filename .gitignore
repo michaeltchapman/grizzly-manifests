@@ -1,0 +1,6 @@
+modules
+.vagrant
+.tmp
+.librarian
+vendor
+#manifests/site.pp
