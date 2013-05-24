@@ -34,9 +34,10 @@ Vagrant::Config.run do |config|
     build_config.vm.customize ["modifyvm", :id, "--name", 'build-server']
     build_config.vm.host_name = 'build-server'
     build_config.vm.network :hostonly, "192.168.242.100"
-    build_config.vm.network :hostonly, "172.16.2.1"
+    build_config.vm.network :hostonly, "10.2.3.100"
     build_config.vm.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     build_config.vm.network :hostonly, "10.3.3.100"
+
     build_config.vm.provision :shell do |shell|
       shell.inline = "cp /vagrant/dhclient.conf /etc/dhcp;cp /vagrant/01apt-cacher-ng-proxy /etc/apt/apt.conf.d; apt-get update; dhclient -r eth0 && dhclient eth0; apt-get install -y git vim puppet curl;"
     end
@@ -55,7 +56,7 @@ Vagrant::Config.run do |config|
     # enable ip forwarding and NAT so that the build server can act
     # as an external gateway for the quantum router.
     build_config.vm.provision :shell do |shell|
-        shell.inline = "sysctl -w net.ipv4.ip_forward=1; iptables -A FORWARD -o eth0 -i eth1 -s 172.16.2.0/24 -m conntrack --ctstate NEW -j ACCEPT; iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT; iptables -t nat -F POSTROUTING; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+        shell.inline = "ip addr add 172.16.2.1 dev eth2; sysctl -w net.ipv4.ip_forward=1; iptables -A FORWARD -o eth0 -i eth1 -s 172.16.2.0/24 -m conntrack --ctstate NEW -j ACCEPT; iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT; iptables -t nat -F POSTROUTING; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
     end
   end
 
