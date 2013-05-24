@@ -21,14 +21,15 @@ node base {
       content => 'Acquire::http::Pipeline-Depth "0";'
   }
 
-    # Load apt prerequisites.  This is only valid on Ubuntu systmes
+  # Load apt prerequisites.  This is only valid on Ubuntu systmes
+  if($::package_repo == 'cisco_repo') {
 
     apt::source { "cisco-openstack-mirror_grizzly":
-	location => $::location, 
-	release => "grizzly-proposed",
-	repos => "main",
-	key => "E8CC67053ED3B199",
-	key_content => '-----BEGIN PGP PUBLIC KEY BLOCK-----
+      location => $::location,
+      release => "grizzly-proposed",
+      repos => "main",
+      key => "E8CC67053ED3B199",
+      key_content => '-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
 mQENBE/oXVkBCACcjAcV7lRGskECEHovgZ6a2robpBroQBW+tJds7B+qn/DslOAN
@@ -59,13 +60,23 @@ xKyLYs5m34d4a0it6wsMem3YCefSYBjyLGSd/kCI/CgOdGN1ZY1HSdLmmjiDkQPQ
 UcXHbA==
 =v6jg
 -----END PGP PUBLIC KEY BLOCK-----',
-	proxy => $::proxy,
+      proxy => $::proxy,
     }
 
     apt::pin { "cisco":
-	priority => '990',
-	originator => 'Cisco'
+      priority => '990',
+      originator => 'Cisco'
     }
+  } elsif($::package_repo == 'cloud_archive') {
+    apt::source { 'openstack_cloud_archive':
+      location          => "http://ubuntu-cloud.archive.canonical.com/ubuntu",
+      release           => "precise-updates/grizzly",
+      repos             => "main",
+      required_packages => 'ubuntu-cloud-keyring',
+    }
+  } else {
+    fail("Unsupported package repo ${::package_repo}")
+  }
 
   class { pip: }
 
