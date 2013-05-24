@@ -119,8 +119,10 @@ node os_base inherits base {
 	  autoupdate 	=> true,
   }
 
-    # Deploy a script that can be used to test nova
-    class { 'openstack::test_file': }
+  # Deploy a script that can be used to test nova
+  class { 'openstack::test_file':
+    image_type => 'cirros',
+  }
 
   class { 'openstack::auth_file':
 	  admin_password       => $admin_password,
