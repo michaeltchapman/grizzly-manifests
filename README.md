@@ -12,7 +12,7 @@ This setup requires that a few additional dependencies are installed:
 
 ## User instructions
 
-	git clone https://github.com/CiscoSystems/grizzly-manifests -b multi-node
+	git clone https://github.com/CiscoSystems/grizzly-manifests
 	cp grizzly-manifests/* /etc/puppet/manifests
 
 ## Developer instructions
